@@ -1,0 +1,1 @@
+time seq 0 99 |while read i; do ./a.out <zaj${i}.in | diff -w - zaj${i}.out; done

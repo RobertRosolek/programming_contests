@@ -34,6 +34,9 @@ typedef long long LL;
 typedef pair<int,int> PII;
 typedef double LD;
 
+/* CHECKLIST 
+ * 1) long longs */
+
 const int DBG = 0, INF = int(1e9);
 
 int main() {

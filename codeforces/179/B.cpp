@@ -50,14 +50,14 @@ int main() {
    REP(i,n)
       cin >> x[i];
 
-   VI res(n);
+   vector<LL> res(n);
 
    int d[n][n];
    REP(i,n) REP(j,n)
       d[i][j] = adj[x[i] - 1][x[j] - 1];
 
    FORD(k,n - 1, 0) {
-      int rs = 0;
+      LL rs = 0;
       REP(i,n) REP(j,n) {
          d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
          if (i >= k && j >= k && i != j)

@@ -1,7 +1,3 @@
-#include <stdio.h>      
-#include <ctype.h>
-#include <math.h>
-
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -13,6 +9,7 @@
 #include <queue>
 #include <set>
 #include <map>
+
 using namespace std;
 
 typedef vector<int> VI;

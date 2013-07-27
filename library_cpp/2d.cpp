@@ -1,4 +1,4 @@
-#include <stdio.h>      
+#include <stdio.h>
 #include <ctype.h>
 #include <math.h>
 
@@ -23,7 +23,7 @@ using namespace std;
 #define REP(i,n) for (int _n=(n), i=0; i<_n; ++i)
 #define FOR(i,a,b) for (int _b=(b), i=(a); i<=_b; ++i)
 #define FORD(i,a,b) for (int _b=(b), i=(a); i>=_b; --i)
-#define FORE(i,a) for (VAR(i,a.begin ()); i!=a.end (); ++i) 
+#define FORE(i,a) for (VAR(i,a.begin ()); i!=a.end (); ++i)
 #define PB push_back
 #define MP make_pair
 #define ST first
@@ -55,7 +55,7 @@ LD abs(LD x) {
 	return x;
 }
 
-const bool isZero(LD x) {
+bool isZero(LD x) {
   return -EPS < x && x < EPS;
 }
 
@@ -73,7 +73,7 @@ inline LD det(LD a, LD b, LD c, LD d, LD e, LD f, LD g, LD h , LD i) {
 //  | e f 1 |
 inline LD det(LD a, LD b, LD c, LD d, LD e, LD f) {
 	return det(a,b,1,c,d,1,e,f,1);
-}  
+}
 
 // *****************
 // ****  Punkt  ****
@@ -93,7 +93,7 @@ struct point {
   }
 
   bool operator< (const point &p) const {
-    if (x != p.x) 
+    if (x != p.x)
       return x < p.x;
     return y < p.y;
   }
@@ -102,7 +102,7 @@ struct point {
 ostream& operator << (ostream& out, const point &p) {
   out << "(" << p.x << "," << p.y << ")";
   return out;
-} 
+}
 
 inline point operator+ (const point &p, const point &q) {
   return point(p.x + q.x, p.y + q.y);
@@ -138,26 +138,26 @@ inline LD scalarProduct(const point &p, const point &q) {
 }
 
 inline LD norm (const point &p) {
-  return dist(point(0,0),p);  
+  return dist(point(0,0),p);
 }
 
-// obrot wzgledem poczatku ukladu przeciwny do wskazowek zegara 
-inline point rotateOrigin (LD alpha, const point &p) { 
+// obrot wzgledem poczatku ukladu przeciwny do wskazowek zegara
+inline point rotateOrigin (LD alpha, const point &p) {
   LD sinus = sinl(alpha), cosinus = cosl(alpha);
   return point(p.x * cosinus - p.y * sinus, p.x * sinus + p.y * cosinus);
 }
 
 // dowolny obrot o srodku w O
-inline point rotate(LD alpha, const point &p, const point &O) { 
+inline point rotate(LD alpha, const point &p, const point &O) {
   return O + rotateOrigin(alpha, p - O);
 }
 
-// obrot o 90 wzgledem srodka, przeciwnie do wskazowek 
+// obrot o 90 wzgledem srodka, przeciwnie do wskazowek
 inline point rotateRightOrigin (const point &p) {
   return point(-p.y, p.x);
 }
 
-// obrot o 90 stopni przeciwnie do wskazowek 
+// obrot o 90 stopni przeciwnie do wskazowek
 inline point rotateRight (const point &p, const point &O) {
   return rotateRightOrigin(p - O) + O;
 }
@@ -213,14 +213,14 @@ struct line {
 
   line ()  {}
   line (const point &A, const point &B) : A(A), B(B) {}
-  line (const line &l) : A(l.A), B(l.B) {} 
+  line (const line &l) : A(l.A), B(l.B) {}
 	line (const segment &s) : A(s.A), B(s.B) {}
 
   const line& operator= (const line &l) {
     A = l.A;
     B = l.B;
     return *this;
-  } 
+  }
 
 };
 
@@ -245,7 +245,7 @@ struct eqLine {
 };
 
 // implementacja konstruktora
-eqLine::eqLine(const point &p, LD alpha) { 
+eqLine::eqLine(const point &p, LD alpha) {
 
   assert(alpha >= 0 && alpha < 2 * PI);
 
@@ -273,17 +273,17 @@ ostream& operator << (ostream& out, const eqLine &l) {
 }
 
 // zwraca czy proste nie sa rownolegle (czyli falsz gdy rowne)
-bool cross(const eqLine &l1, const eqLine &l2) { 
-  return l1.A * l2.B != l1.B * l2.A;  
+bool cross(const eqLine &l1, const eqLine &l2) {
+  return l1.A * l2.B != l1.B * l2.A;
 }
 
 // musi byc cross(l1,l2) == true
-point crossPoint(const eqLine &l1, const eqLine &l2) { 
+point crossPoint(const eqLine &l1, const eqLine &l2) {
 
   LD w = l1.A * l2.B - l1.B * l2.A;
 	LD wX = -l1.C * l2.B  + l2.C * l1.B;
 	LD wY = -l1.A * l2.C + l2.A * l1.C;
-	
+
   return point(wX / w, wY / w);
 }
 
@@ -302,7 +302,7 @@ bool sameSide(const point &p, const point &q, const eqLine &l) {
 ostream& operator << (ostream& out, const line &l) {
   out << "[" << l.A << "," << l.B << "]";
   return out;
-} 
+}
 
 // rzut punktu na prosta
 inline point projection(const point& p, const line& l) {
@@ -350,11 +350,11 @@ inline LD length (const segment &s) {
   return dist(s.A, s.B);
 }
 
-// czy punkt lezacy na prostej wyznaczonej przez s 
+// czy punkt lezacy na prostej wyznaczonej przez s
 // lezy na odcinku s
 inline int inside (const point &p, const segment &s) {
   return min(s.A.x, s.B.x) - EPS <= p.x && p.x <= max(s.A.x, s.B.x) + EPS &&
-         min(s.A.y, s.B.y) - EPS <= p.y && p.y <= max(s.A.y, s.B.y) + EPS; 
+         min(s.A.y, s.B.y) - EPS <= p.y && p.y <= max(s.A.y, s.B.y) + EPS;
 }
 
 
@@ -368,7 +368,7 @@ bool cross(const segment &s1, const segment &s2) {
 
 	return inside(x, s1) && inside(x, s2);
 
-} 
+}
 
 // punkt przeciecia odcinkow - musi byc cross(s1,s2) == true
 point crossPoint(const segment &s1, const segment &s2) {
@@ -397,7 +397,7 @@ inline LD distSeg(const point &p, const segment &s) {
 // punkt z danego odcinka ktory jest najblizszy do danego punktu
 inline point closestPoint(const point &p, const segment &s) {
 	point q = projection(p, line(s));
-	if (inside(q,s))	
+	if (inside(q,s))
 		return q;
 	if (dist(p,s.A) < dist(p, s.B))
 		return s.A;
@@ -418,10 +418,10 @@ struct circle {
   point O;
   LD r;
 
-  circle(const point &O, LD r) : O(O), r(r) {}  
+  circle(const point &O, LD r) : O(O), r(r) {}
   circle(const circle &c) : O(c.O), r(c.r) {}
 	circle(const point &A, const point &B, const point &C) { // A,B,C sa niewspolliniowe
-		LD a = det(A,B,C), 
+		LD a = det(A,B,C),
 		d = - det(scalarProduct(A,A), A.y, scalarProduct(B,B), B.y, scalarProduct(C,C), C.y),
 		e = det(scalarProduct(A,A), A.x, scalarProduct(B,B), B.x, scalarProduct(C,C), C.x);
 		O.x = - d / (2. * a);
@@ -439,7 +439,7 @@ struct circle {
 ostream& operator << (ostream& out, const circle &c) {
   out << "B[" << c.O << "," << c.r << "]";
   return out;
-} 
+}
 
 // sprawdza czy prosta przecina sie z okregiem
 inline bool cross(const line &l, const circle &c) {
@@ -463,7 +463,7 @@ inline LD inCircle(point &a, point &b, point &c, point &d) {
 int intersect(const line &l, const circle &c, point &A, point &B) {
   point M = projection(c.O, l);
   LD d = dist(M, c.O);
-  if (d >= c.r) 
+  if (d >= c.r)
     return 0;
   if (d < EPS) {
     A = c.O + (c.r / norm(l.B)) * l.B;
@@ -481,20 +481,20 @@ int intersect(const line &l, const circle &c, point &A, point &B) {
 inline int segmentCross(const segment &s, const circle &c) {
   point A, B;
   if (!intersect(line(s),c, A, B))
-    return 0; 
+    return 0;
   return inside(A,s) || inside(B,s);
 }
 
 // styczne do okregu przez dany punkt, A i B to styczne
-int tangentLines (const point &p, const circle &c, line &A, line &B) { 
-  if (onCircle(p,c)) { // styczna przez punkt na okregu jest styczna w tym punkcie 
-    A = B = right(p,c.O - p);  
+int tangentLines (const point &p, const circle &c, line &A, line &B) {
+  if (onCircle(p,c)) { // styczna przez punkt na okregu jest styczna w tym punkcie
+    A = B = right(p,c.O - p);
     swap(A.A, A.B);
-    swap(B.A, B.B); 
+    swap(B.A, B.B);
     return 1;
   }
   LD d = dist(p, c.O);
-  if (d <= c.r) 
+  if (d <= c.r)
     return 0;
   LD alpha = asinl(c.r / d);
   point temp = (sqrt(d*d - c.r*c.r) / d) * (c.O - p) + p;
@@ -521,7 +521,7 @@ LD curveLength (const point &A, const point &B, const circle &c) {
 struct polarComparator {
   point O;
   polarComparator(const point &p = point(0,0)) : O(p) {}
-  bool operator() (const point &p, const point &q) { 
+  bool operator() (const point &p, const point &q) {
     LD d = det(O,p,q);
     if (isZero(d))
       return dist(p,O) > dist(q,O);   // najpierw bardziej odlegly punkt - pozniej usuwamy duplikaty i chcemy zostawic najbardziej odlegly punkt
@@ -547,7 +547,7 @@ void sortPolar(const point &p, const vector<point> &W, vector<point> &res) {
     else if (isZero (it->y - p.y))
       C.PB(*it);
     else
-      B.PB(*it); 
+      B.PB(*it);
   }
   sort(C.begin(), C.end());
   while (C.size() && C.back().x >= p.x - EPS) {
@@ -578,7 +578,7 @@ void convexHull(const vector<point> &V, vector<point> &res) {
   polarComparator comparator(W[0]);
   sort(++W.begin(), W.end(), comparator);
   equalPolar equalComparator(W[0]);
-  W.erase(unique(++W.begin(), W.end(), equalComparator), W.end()); // usuwamy duplikaty wzgledem wspolrzednych polarnych i zostawiamy te najodleglejsze 
+  W.erase(unique(++W.begin(), W.end(), equalComparator), W.end()); // usuwamy duplikaty wzgledem wspolrzednych polarnych i zostawiamy te najodleglejsze
   if (W.size() <= 3) {
     res = W;
     return;
@@ -596,7 +596,7 @@ void convexHull(const vector<point> &V, vector<point> &res) {
 // zaburza uklad punktow przesuwajac je w losowym kierunku maksymalnie o eps w normie supremum
 void perturb(vector<point> &V, LD eps) {
   static bool first = true;
-  if (first) 
+  if (first)
     srand( (unsigned)time( NULL ) );
   first = false;
   FORE(it,V) {
@@ -638,10 +638,10 @@ LD area(const vector<point> &W) {
 }
 
 
-// odleglosc punktu od (obwodu) wielokata 
+// odleglosc punktu od (obwodu) wielokata
 inline LD dist(const point &p, const vector<point> &W) {
   LD res = distSeg(p, segment(W[0], W.back()));
-  FOR(i, 1, W.size() - 1) 
+  FOR(i, 1, W.size() - 1)
     res = min(res, distSeg(p, segment(W[i], W[i - 1])));
   return res;
 }
@@ -659,14 +659,14 @@ inline bool insideConvex(const point &p, const vector<point> &W) {
 }
 
 
-// przecięcie wielokąta wypuklego z polplaszczyzna 
+// przecięcie wielokąta wypuklego z polplaszczyzna
 // wyznaczona przez prosta l i punkt p
 void crossPolyPlane(vector<point> &V, const line &l, const point &p) {
-	
+
 	int n = V.size();
 
 	vector<point> W;
-	
+
 	REP(i,n) {
 
 		int j = (i + n - 1) % n;
@@ -675,12 +675,12 @@ void crossPolyPlane(vector<point> &V, const line &l, const point &p) {
 
 			point x = crossPoint(segment(V[j], V[i]), l);
 
-			if (x != V[j] && x != V[i]) 
+			if (x != V[j] && x != V[i])
 				W.PB(x);
 
 		}
 
-		W.PB(V[i]);		
+		W.PB(V[i]);
 
 	}
 
@@ -698,7 +698,7 @@ void crossPolyPlane(vector<point> &V, const line &l, const point &p) {
 
 	three (int a = 0, int b = 0, int c = 0) : a(a), b(b), c(c) {}
 	three (const three &t) : a(t.a), b(t.b), c(t.c) {}
-	
+
 	three& operator= (const three &t) {
 		a = t.a; b = t.b; c = t.c;
 		return *this;
@@ -735,27 +735,27 @@ int n;
 vector<pair<point,int> > P; // druga wspolrzedna zawiera numer punktu w V
 vector<three> T; // trojkaty triangulacji
 vector<bool> act; // czy trojkat T[i] jest aktywny
-vector<list<int> > inPoints; // inPoints[i] - numery (w P) punktow wewnatrz trojkata T[i]   
-vector<list<int> > linkTree; // linkTree[i] - numery trojkatow zawierajacych punkt P[i].ST 
+vector<list<int> > inPoints; // inPoints[i] - numery (w P) punktow wewnatrz trojkata T[i]
+vector<list<int> > linkTree; // linkTree[i] - numery trojkatow zawierajacych punkt P[i].ST
 
 void swapTest(int p, int a, int b) {
 	if (a < 3 && b < 3)  // krawedz zewnetrzna
 		return;
-	
-	int d = -1; // pierwszy punkt na prawo od odcinka ab 
-				 //(drugi punkt poza p ktory jest w trojkacie z punktami a i b) 
 
-	FORE(it,linkTree[a]) { 
-		if (T[*it].contains(b) && ! T[*it].contains(p)) { 
+	int d = -1; // pierwszy punkt na prawo od odcinka ab
+				 //(drugi punkt poza p ktory jest w trojkacie z punktami a i b)
+
+	FORE(it,linkTree[a]) {
+		if (T[*it].contains(b) && ! T[*it].contains(p)) {
 			assert(T[*it].contains(a));
 			d = T[*it].getThird(a,b);
 		}
 	}
 
 	assert (d != -1);
-	
+
 	if (inCircle(P[p].ST,P[a].ST,P[b].ST,P[d].ST) < 0) {
-		
+
 		// zamien krawedz ab na pd
 
 		T.PB(three(p,a,d));
@@ -764,18 +764,18 @@ void swapTest(int p, int a, int b) {
 
 		REP(j,2)
 			inPoints.PB(list<int>());
-				
+
 		list<int>::iterator it = linkTree[a].begin();
 		while (it != linkTree[a].end()) {
-			if (! T[*it].contains(b)) 
+			if (! T[*it].contains(b))
 				++it;
 			else {
 				assert(T[*it].contains(a));
 				assert(T[*it].contains(p) || T[*it].contains(d));
 				act[*it] = false;
 
-				FORE(jt, inPoints[*it]) if (*jt != a && *jt != b && *jt != p && *jt != d)  
-					FORD(j,T.size() - 1, T.size() - 2) 
+				FORE(jt, inPoints[*it]) if (*jt != a && *jt != b && *jt != p && *jt != d)
+					FORD(j,T.size() - 1, T.size() - 2)
 						if (insideTriangle(P[*jt].ST, P[T[j].a].ST, P[T[j].b].ST, P[T[j].c].ST)) {
 							inPoints[j].PB(*jt);
 							linkTree[*jt].clear();
@@ -786,33 +786,33 @@ void swapTest(int p, int a, int b) {
 		}
 
 		it = linkTree[b].begin();
-		while (it != linkTree[b].end()) 
-			if (T[*it].contains(a)) 
+		while (it != linkTree[b].end())
+			if (T[*it].contains(a))
 				linkTree[b].erase(it++);
 			else
 				++it;
 
 		it = linkTree[p].begin();
-		while (it != linkTree[p].end()) 
-			if (T[*it].contains(a) && T[*it].contains(b)) 
+		while (it != linkTree[p].end())
+			if (T[*it].contains(a) && T[*it].contains(b))
 				linkTree[p].erase(it++);
 			else
 				++it;
 
 		it = linkTree[d].begin();
-		while (it != linkTree[d].end()) 
-			if (T[*it].contains(a) && T[*it].contains(b)) 
+		while (it != linkTree[d].end())
+			if (T[*it].contains(a) && T[*it].contains(b))
 				linkTree[d].erase(it++);
 			else
 				++it;
 
 		inPoints[T.size() - 2].PB(p); inPoints[T.size() - 2].PB(a); inPoints[T.size() - 2].PB(d);
 		inPoints[T.size() - 1].PB(p); inPoints[T.size() - 1].PB(b); inPoints[T.size() - 1].PB(d);
-		linkTree[a].PB(T.size() - 2); 
+		linkTree[a].PB(T.size() - 2);
 		linkTree[p].PB(T.size() - 1); linkTree[p].PB(T.size() - 2);
-		linkTree[b].PB(T.size() - 1); 
+		linkTree[b].PB(T.size() - 1);
 		linkTree[d].PB(T.size() - 1); linkTree[d].PB(T.size() - 2);
-		
+
 		swapTest(p,a,d);
 		swapTest(p,d,b);
 	}
@@ -822,19 +822,19 @@ void swapTest(int p, int a, int b) {
 void triangulationDelaunay(const vector<point> &V) {
 
 	static bool first = true;
-  if (first) 
+  if (first)
     srand( (unsigned)time( NULL ) );
   first = false;
 
-	LD M = 0; 
+	LD M = 0;
 
 	FORE(it,V)
 		M = max(M,max(abs(it->y), abs(it->x)));
 
 	// trojkat ABC zawiera wszystkie dane punkty
-	point A(-3 * M, -3 * M), B(3 * M, 0), C (0, 3 * M); 
+	point A(-3 * M, -3 * M), B(3 * M, 0), C (0, 3 * M);
 
-	
+
 
 	REP(i,V.size())
 		P.PB(MP(V[i], i));
@@ -846,7 +846,7 @@ void triangulationDelaunay(const vector<point> &V) {
 	n = P.size();
 
 	linkTree = vector<list<int> >(n);
-		
+
 	T.PB(three(0,1,2));
 	act.PB(true);
 	inPoints.PB(list<int>());
@@ -854,7 +854,7 @@ void triangulationDelaunay(const vector<point> &V) {
 		inPoints[0].PB(i);
 	REP(i,n)
 		linkTree[i].PB(0);
-	
+
 	// dodanie punktu P[i].ST
   FOR(i,3,n - 1) {
 
@@ -872,7 +872,7 @@ void triangulationDelaunay(const vector<point> &V) {
 			inPoints.PB(list<int>());
 
 		FORE(it, inPoints[k]) if (! T[k].contains(*it) && *it != i) {
-			FORD(j,T.size() - 1, T.size() - 3) 
+			FORD(j,T.size() - 1, T.size() - 3)
 				if (insideTriangle(P[*it].ST, P[T[j].a].ST, P[T[j].b].ST, P[T[j].c].ST)) {
 					inPoints[j].PB(*it);
 					linkTree[*it].clear();
@@ -886,7 +886,7 @@ void triangulationDelaunay(const vector<point> &V) {
 
 		linkTree[i].clear();
 		list<int>::iterator it = linkTree[T[k].a].begin();
-		while (it != linkTree[T[k].a].end()) 
+		while (it != linkTree[T[k].a].end())
 			if (T[*it].contains(T[k].b) && T[*it].contains(T[k].c)) {
 				linkTree[T[k].a].erase(it);
 				break;
@@ -894,7 +894,7 @@ void triangulationDelaunay(const vector<point> &V) {
 			else
 				++it;
 		it = linkTree[T[k].b].begin();
-		while (it != linkTree[T[k].b].end()) 
+		while (it != linkTree[T[k].b].end())
 			if (T[*it].contains(T[k].a) && T[*it].contains(T[k].c)) {
 				linkTree[T[k].b].erase(it);
 				break;
@@ -902,7 +902,7 @@ void triangulationDelaunay(const vector<point> &V) {
 			else
 				++it;
 		it = linkTree[T[k].c].begin();
-		while (it != linkTree[T[k].c].end()) 
+		while (it != linkTree[T[k].c].end())
 			if (T[*it].contains(T[k].a) && T[*it].contains(T[k].b)) {
 				linkTree[T[k].c].erase(it);
 				break;
@@ -920,7 +920,7 @@ void triangulationDelaunay(const vector<point> &V) {
 		swapTest(i,T[k].a, T[k].b);
 		swapTest(i,T[k].b,T[k].c);
 		swapTest(i,T[k].c,T[k].a);
-		
+
 	}
 
 	// transformacja triangulacji do grafu
@@ -928,18 +928,18 @@ void triangulationDelaunay(const vector<point> &V) {
 	FOR(i,3,n - 1) {
 		FORE(it,linkTree[i]) {
 			assert(act[*it]);
-			if (T[*it].a != i && T[*it].a > 2) 
+			if (T[*it].a != i && T[*it].a > 2)
 				W[P[i].ND].PB(P[T[*it].a].ND);
-			if (T[*it].b != i && T[*it].b > 2) 
+			if (T[*it].b != i && T[*it].b > 2)
 				W[P[i].ND].PB(P[T[*it].b].ND);
-			if (T[*it].c != i && T[*it].c > 2) 
+			if (T[*it].c != i && T[*it].c > 2)
 				W[P[i].ND].PB(P[T[*it].c].ND);
 		}
 
 		sort(ALL(W[P[i].ND]));
 		W[P[i].ND].erase(unique(ALL(W[P[i].ND])), W[P[i].ND].end());
 	}
-	
+
 }*/
 
 

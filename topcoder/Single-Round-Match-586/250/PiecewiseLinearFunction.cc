@@ -1,4 +1,3 @@
-
 // {{{ Boilerplate Code <--------------------------------------------------
 // vim:filetype=cpp:foldmethod=marker:foldmarker={{{,}}}
 
@@ -55,9 +54,10 @@ public:
       vals.push_back(Y[0]);
       for (int i = 1; i < n; ++i)
          vals.push_back(Y[i]);
-      sort(vals.begin(), vals.end());
+      vector<int> W = Y;
+      sort(W.begin(), W.end());
       for (int i = 1; i < n; ++i)
-         vals.push_back( (double(Y[i - 1]) + Y[i]) / 2);
+         vals.push_back( (double(W[i - 1]) + W[i]) / 2);
       int rs = 1;
       for (vector<double>::iterator it = vals.begin(); it != vals.end(); ++it)
          rs = max(rs, sols(Y, *it));
@@ -65,3 +65,6 @@ public:
    }
 };
 
+
+// Edited by VimCoder 0.3.5
+// http://github.com/chazmcgarvey/vimcoder

@@ -3,3 +3,5 @@
 *.out
 *.zip
 *.tar.gz
+*.tar.bz2
+*.7z

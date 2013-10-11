@@ -14,8 +14,8 @@ typedef long long int LL;
 typedef pair<int,int> PII;
 typedef double LD;
 
-/* CHECKLIST 
- * 1) long longs 
+/* CHECKLIST
+ * 1) long longs
  * 2) lower_bound etc - out of bound
  * 3) multiple inputs- data structures cleared
  * */
@@ -42,12 +42,12 @@ int main() {
    VI v;
    read_data(n, v);
 
-   // dp[i][a] - minimal number of letter changes in fragment v[0]...v[i] 
+   // dp[i][a] - minimal number of letter changes in fragment v[0]...v[i]
    // to make it valid and so that last element is equal to a
    vector<VI> dp(n, VI(3));
    for (int a = 0; a < 3; ++a)
       dp[0][a] = (v[0] != a);
-   for (int i = 1; i < n; ++i) 
+   for (int i = 1; i < n; ++i)
       for (int a = 0; a < 3; ++a)
          dp[i][a] = min(dp[i - 1][(a + 1) % 3], dp[i - 1][(a + 2) % 3]) + (v[i] != a);
 
@@ -58,4 +58,4 @@ int main() {
    printf("%d\n", res);
 
    return 0;
-}	
+}

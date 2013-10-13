@@ -46,32 +46,45 @@ int getMask(vector<PII>& v) {
 }
 
 int solve(int r, int msk) {
-   if (r == 2 * MAXN + 1)
+   if (r == 2 * MAXN - 1)
       return 0;
    if (dp[r][msk] != INF)
       return dp[r][msk];
    vector<PII> pos = getPos(r, msk);
+   assert(!pos.empty());
    int bal = 0;
    if (T[pos[0].first][pos[0].second] == 'a')
       bal = 1;
    else if (T[pos[0].first][pos[0].second] == 'b')
       bal = -1;
+   if (r == 2 * n - 2)
+      return dp[r][msk] = bal;
+   int res;
    if (r % 2 == 1)
-      bal *= -1;
-   int res = 
+      res = -INF;
+   else
+      res = INF;
+
    for (char c = 'a'; c <= 'z'; ++c) {
       set<PII> newPos;
       for (vector<PII>::iterator it = pos.begin(); it != pos.end(); ++it) {
          if (it->first + 1 < n && T[it->first + 1][it->second] == c)
             newPos.insert(make_pair(it->first + 1, it->second));
          if (it->second + 1 < n && T[it->first][it->second + 1] == c)
-            newPos.insert(make_pair(it->first + 1, it->second));
+            newPos.insert(make_pair(it->first, it->second + 1));
       }
+      if (newPos.empty())
+         continue;
       vector<PII> vPos;
       for (set<PII>::iterator it = newPos.begin(); it != newPos.end(); ++it)
          vPos.push_back(*it);
       int val = solve(r + 1, getMask(vPos));
+      if (r % 2 == 1)
+         res = max(res, val + bal);
+      else
+         res = min(res, val + bal);
    }
+   return dp[r][msk] = res;
 }
 
 int main() {
@@ -88,6 +101,14 @@ int main() {
          dp[i][j] = INF;
 
    int res = solve(0, 1);
+   string msg;
+   if (res < 0)
+      msg = "SECOND";
+   else if (res == 0)
+      msg = "DRAW";
+   else
+      msg = "FIRST";
+   cout << msg << endl;
 
    return 0;
 }

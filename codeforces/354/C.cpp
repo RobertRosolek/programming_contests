@@ -32,15 +32,16 @@ int main() {
    for (int i = 0; i < n; ++i)
       cin >> a[i];
 
-   int mx = a[0];
+   int mx = a[0], mn = a[0];
    for (int i = 1; i < n; ++i)
-      mx = max(mx, a[i]);
+      mx = max(mx, a[i]), mn = min(mn, a[i]);
 
    vector<int> sm(mx + 2, 0);
-   for (int i = 0; i < n; ++i) {
-      sm[max(1, a[i] - k)] += 1;
-      sm[a[i] + 1] -= 1;
-   }
+   for (int i = 0; i < n; ++i)
+      if (a[i] > k) {
+         sm[a[i] - k] += 1;
+         sm[a[i] + 1] -= 1;
+      }
 
    for (int i = 1; i <= mx; ++i)
       sm[i] += sm[i - 1];
@@ -57,7 +58,9 @@ int main() {
       }
    }
 
-   cout << k << endl;
+   assert(mn <= k);
+   cout << mn << endl;
+
    return 0;
 }
 

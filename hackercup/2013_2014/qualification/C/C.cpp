@@ -68,11 +68,18 @@ istream& operator>>(istream& stream, prob& p) {
 
 ostream& operator<<(ostream& stream, prob p) {
    auto toString = [] (LL x) { stringstream ss; ss << x; string p; ss >> p; return p; };
+   int integral = p.x / ONE.x;
    int fractional = (p.x % ONE.x) / 100;
    if (fractional % 10 < 5) fractional /= 10;
    else fractional = fractional / 10 + 1;
+   if (fractional >= 1e6) {
+      assert(integral == 0);
+      integral = 1;
+      assert(fractional == 1e6);
+      fractional = 0;
+   }
    auto leadZeros = [] (string s) { while (s.size() != 6) s = "0" + s; return s; };
-   return stream << toString(p.x / ONE.x) << "." << leadZeros(toString(fractional));
+   return stream << toString(integral) << "." << leadZeros(toString(fractional));
 }
 
 struct Solve {

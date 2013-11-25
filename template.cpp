@@ -10,9 +10,6 @@
 
 using namespace std;
 
-typedef long long LL;
-typedef pair<int,int> PII;
-
 /* CHECKLIST
  * 1) long longs
  * 2) lower_bound etc - out of bound

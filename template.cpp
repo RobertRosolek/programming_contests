@@ -16,7 +16,6 @@ typedef pair<int,int> PII;
 /* CHECKLIST
  * 1) long longs
  * 2) lower_bound etc - out of bound
- * 3) multiple inputs- data structures cleared
  * */
 
 const int DBG = 0, INF = int(1e9);

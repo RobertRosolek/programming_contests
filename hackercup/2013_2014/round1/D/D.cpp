@@ -23,10 +23,10 @@ using namespace std;
 
 const vector<int> P = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47};
 
-const vector<int> B = {53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127};
-int b = 16;
+const vector<int> B = {53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149};
+int b = 20;
 
-const int INF = 30000, MAXM = 121, BITS = 15;
+const int INF = 30000, MAXM = 149, BITS = 15;
 
 int fac[MAXM + 1];
 void init() {
@@ -48,7 +48,7 @@ class Solve {
    vector<int> a;
    unordered_map<int, short> mem[20];
 
-   int walk(int step, int prev, int msk) {
+   int walk(int step, int msk) {
       if (step == n) return 0;
       int bits = __builtin_popcount(msk);
       //if (1 < a[step] && BITS - bits < n - step) return INF;
@@ -58,7 +58,7 @@ class Solve {
          int f = fac[i];
          if (f == -1) continue;
          if (f & msk) continue;
-         res = min(res, i + walk(step + 1, i, f | msk));
+         res = min(res, i + walk(step + 1, f | msk));
       }
       return mem[step][msk] = res;
   }
@@ -71,17 +71,15 @@ class Solve {
       for (int& x: a) if (x == 0) x = 1;
       int res = INF;
       int N = n;
-      for (int primes: irange(0, min(n, b))) {
+      for (int primes: irange(0, min(n, b) + 1)) {
          int cur = 0;
          for (int i : irange(0, primes)) cur += B[i];
-         n -= primes;
-         //cout << n << endl;
+         n -=  primes;
          for (int i: irange(0, n)) mem[i].clear();
-         res = min(res, cur + walk(0, 1, 0));
+         res = min(res, cur + walk(0, 0));
          n = N;
       }
       return res;
-      //return walk(0, 1, 0);
    }
 
    public:

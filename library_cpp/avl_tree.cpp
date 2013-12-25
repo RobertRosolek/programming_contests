@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <math.h>
 
+#include <cassert>
 #include <iostream>
 #include <fstream>
 #include <utility>
@@ -13,321 +14,186 @@
 #include <map>
 using namespace std ;
 
-#define VAR(a,b) __typeof (b) a = b
-#define REP(i,n) for (int _n=(n), i=0; i<_n; ++i)
-#define FOR(i,a,b) for (int _b=(b), i=(a); i<=_b; ++i)
-#define FORD(i,a,b) for (int _b=(b), i=(a); i>=_b; --i)
-#define FORE(i,a) for (VAR(i,a.begin ()); i!=a.end (); ++i)
+#include <memory>
+template<class T>
+class AvlTree {
+   struct Node {
+      Node(T val, shared_ptr<const Node> left, shared_ptr<const Node> right, int height, int size):
+         val(val), left(left), right(right), height(height), size(size) {}
+      T val;
+      shared_ptr<const Node> left, right;
+      int height;
+      int size; // number of elements in a subtree
+   };
+   typedef shared_ptr<const Node> Tree;
+   friend inline int height(const Tree& t) {
+      if (!t) return 0;
+      return t->height;
+   }
+   friend inline int siz(const Tree& t) {
+      if (!t) return 0;
+      return t->size;
+   }
+   friend inline int rootCount(const Tree& t) {
+      if (!t) return 0;
+      return t->size - siz(t->left) - siz(t->right);
+   }
+   friend inline bool isBalanced(const Tree& t) {
+      if (!t) return true;
+      return abs(height(t->left) - height(t->right)) <= 2;
+   }
+   friend inline Tree create(const Tree& left, T val, int count, const Tree& right) {
+      //assert(isBalanced(left));
+      //assert(isBalanced(right));
+      //assert(!left || maxElem(left) < val); // TODO comment out, this is costly
+      //assert(!right || val < minElem(right)); // TODO comment out, this is costly
+      //assert(abs(height(left) - height(right)) <= 2);
+      return make_shared<Node>(val, left, right, max(height(left), height(right)) + 1,
+         siz(left) + siz(right) + count);
+   }
+   friend Tree createAndBalance(const Tree& left, T val, int count, const Tree& right) {
+      //assert(isBalanced(left));
+      //assert(isBalanced(right));
+      //assert(!left || maxElem(left) < val); // TODO comment out, this is costly
+      //assert(!right || val < minElem(right)); // TODO comment out, this is costly
+      //assert(abs(height(left) - height(right)) <= 3);
+      if (height(left) > height(right) + 2) {
+         //assert(left);
+         if (height(left->left) >= height(left->right)) return
+            create(
+               left->left,
+               left->val,
+               rootCount(left),
+               create(left->right, val, count, right)
+            );
+         //assert(left->right);
+         return create(
+            create(left->left, left->val, rootCount(left), left->right->left),
+            left->right->val,
+            rootCount(left->right),
+            create(left->right->right, val, count, right)
+         );
+      }
+      if (height(left) + 2 < height(right)) {
+         //assert(right);
+         if (height(right->left) <= height(right->right)) return
+            create(
+               create(left, val, count, right->left),
+               right->val,
+               rootCount(right),
+               right->right
+            );
+         //assert(right->left);
+         return create(
+            create(left, val, count, right->left->left),
+            right->left->val,
+            rootCount(right->left),
+            create(right->left->right, right->val, rootCount(right), right->right)
+         );
+      }
+      // inline expansion of create for better speed in the most frequent case
+      // where no rebalancing is required
+      return make_shared<Node>(val, left, right, max(height(left), height(right)) + 1,
+         siz(left) + siz(right) + count);
+   }
 
-template<class T> struct node {
-  T key;
-  int balance,size,counter;   //counter - used to implement multiset
-  node<T>* left;
-  node<T>* right;
-};
+   friend Tree add(const Tree& t, T val) {
+      if (!t) return make_shared<Node>(val, shared_ptr<Node>(), shared_ptr<Node>(), 1, 1);
+      if (val == t->val) return make_shared<Node>(val, t->left, t->right,
+         t->height, t->size + 1);
+      if (val < t->val) return
+         createAndBalance(add(t->left, val), t->val, rootCount(t), t->right);
+      return createAndBalance(t->left, t->val, rootCount(t), add(t->right, val));
+   }
 
-template<class T> class SET {
+   friend T minElem(const Tree& t) {
+      //assert(t);
+      if (!t->left) return t->val;
+      return minElem(t->left);
+   }
 
-public:
+   friend T maxElem(const Tree& t) {
+      //assert(t);
+      if (!t->right) return t->val;
+      return maxElem(t->right);
+   }
 
-  SET(): t(NULL) {}
-  inline void insert(T x) {bool h=false; insert(x,t,h);}
-  inline void erase(T x) {bool h=false; erase(x,t,h);}
-  inline int count(T x) {return count(x,t);}
-  inline T kOrder(int k) {return kOrder(k,t);}    // k-th order statistics
-  inline T kOrderH(int k) {return kOrder(t->size-k+1,t);}   // k-th order statistics from above
-  inline int countLess(T x) {return countLess(x,t);}      // how many smaller elements there are in the set
-  inline int countGreat(T x) {return countGreat(x,t);}      // how many greater elements there are in the set
-  inline int position(T x) {return position(x,t);}        // how many greater or equal elements there are in the set
-  inline T lowerBound(T x) {return lowerBound(x,t);}     // returns the first element in the set greater than x 
-  inline T upperBound(T x) {return upperBound(x,t);}     //returns the first element in the set less than x
-  inline int size() {return size(t);}
+   // number of occurences of smallest element in the t
+   friend int minElemOccur(const Tree& t) {
+      //assert(t);
+      if (!t->left) return rootCount(t);
+      return minElemOccur(t->left);
+   }
 
-//private:
+   // remove ALL occurences of the smallest element in the t
+   friend Tree removeMinElem(const Tree& t) {
+      //assert(t);
+      if (!t->left) return t->right;
+      return createAndBalance(removeMinElem(t->left), t->val, rootCount(t), t->right);
+   }
 
-  node<T>* t;
+   friend Tree merge(const Tree& t1, const Tree& t2) {
+      //assert(!t1 || !t2 || maxElem(t1) < minElem(t2));
+      //assert(abs(height(t1) - height(t2)) <= 2);
+      if (!t1) return t2;
+      if (!t2) return t1;
+      return createAndBalance(t1, minElem(t2), minElemOccur(t2), removeMinElem(t2));
+   }
 
-  inline int position(T x, node<T>* t) {
-    return t->size-countGreat(x,t);
-  }
+   friend int count(const Tree& t, T val) {
+      if (!t) return 0;
+      if (t->val == val) return rootCount(t);
+      if (val < t->val) return count(t->left, val);
+      return count(t->right, val);
+   }
 
-  inline T upperBound(T x, node<T>* t) {
-    return kOrder(countLess(x,t),t);
-  }
+   friend int countSmall(const Tree& t, T val) {
+      if (!t) return 0;
+      if (t->val == val) return siz(t->left);
+      if (val < t->val) return countSmall(t->left, val);
+      return siz(t->left) + rootCount(t) + countSmall(t->right, val);
+   }
 
-  inline T lowerBound(T x, node<T>* t) {
-    return kOrder(position(x,t)+1,t);
-  }
+   friend int countBig(const Tree& t, T val) {
+      if (!t) return 0;
+      if (val == t->val) return siz(t->right);
+      if (t->val < val) return countBig(t->right, val);
+      return siz(t->right) + rootCount(t) + countBig(t->left, val);
+   }
 
-  inline int countGreat(T x, node<T>* t) {
-    int res=0;
-    while (t!=NULL) {
-      if (x<t->key) {res+=t->counter+size(t->right); t=t->left;}
-      else if (x==t->key) {res+=size(t->right); break;}
-      else t=t->right;
-    }
-    return res;
-  }
+   friend Tree remove(const Tree& t, T val) {
+      if (!t) return t;
+      if (val < t->val)
+         return createAndBalance(remove(t->left, val), t->val, rootCount(t), t->right);
+      if (val > t->val)
+         return createAndBalance(t->left, t->val, rootCount(t), remove(t->right, val));
+      if (rootCount(t) > 1)
+         return make_shared<Node>(t->val, t->left, t->right, t->height, t->size - 1);
+      return merge(t->left, t->right);
+   }
 
-  inline int countLess(T x, node<T>* t) {
-    int res=0;
-    while (t!=NULL) {
-      if (x<t->key) t=t->left;
-      else if (x==t->key) {res+=size(t->left); break;}
-      else {res+=size(t->left)+t->counter; t=t->right;}
-    }
-    return res;
-  }
+   shared_ptr<const Node> t;
 
-  inline int size(node<T>* t) {
-    if (t==NULL) return 0;
-    else return t->size;
-  }
+   explicit AvlTree(shared_ptr<const Node> node) : t(node) {}
 
-  inline T kOrder(int k, node<T>* t) {
-    while (k<=size(t->left) || k>size(t->left)+t->counter) {
-      if (k<=size(t->left)) t=t->left;
-      else {k-=size(t->left)+t->counter; t=t->right;}
-    }
-    return t->key;
-  }
+   public:
+      AvlTree(): t(shared_ptr<const Node>()) {}
+      int size() const { return siz(t); }
+      bool empty() const { return t ? false : true; }
+      int count(T val) const { return count(t, val); }
+      int countSmaller(T val) const { return countSmall(t, val); }
+      int countBigger(T val) const { return countBig(t, val); }
+      AvlTree insert(T val) const { return AvlTree(add(t, val)); }
+      AvlTree erase(T val) const { return AvlTree(remove(t, val)); }
 
-  int height(node<T>* t) {
-    if (t==NULL) return 0;
-    return max(height(t->left),height(t->right))+1;
-  }
-
-  int count(T x, node<T>* t) {
-    if (t==NULL) return 0;
-    if (x==t->key) return t->counter;
-    if (x<t->key) return count(x,t->left);
-    return count(x,t->right);
-  }
-
-  inline void update(node<T>* &t) {
-    int l,r;
-    if (t->left==NULL) l=0; else l=t->left->size; 
-    if (t->right==NULL) r=0; else r=t->right->size;
-    t->size=l+r+t->counter; 
-    t->balance = r - l;
-  }
-
-  void insert(T x, node<T>* &t, bool &h) {     //Niklaus Wirth "Algorytmy + struktury danych = programy"
-    if (t==NULL) {
-      t=new(node<T>);
-      h=true;
-      t->key=x;
-      t->balance=0;
-      t->size=1;
-      t->counter=1;
-      t->left=t->right=NULL;
-    }
-    else if (x<t->key) {
-      ++(t->size);
-      insert(x,t->left,h);
-      if (h) switch (t->balance) {
-        case 1: t->balance=0; 
-                h=false; 
-                break;
-
-        case 0: t->balance=-1;
-                break;
-
-        case -1: node<T>* t1=t->left;
-                 if (t1->balance==-1) {
-                   t->left=t1->right;
-                   update(t);
-                   t1->right=t;
-                   t->balance=0;
-                   t=t1;
-                   update(t);
-                 }
-                 else {
-                   node<T>* t2=t1->right;
-                   t1->right=t2->left;
-                   update(t1);
-                   t2->left=t1;
-                   t->left=t2->right;
-                   update(t);
-                   t2->right=t;
-                   if (t2->balance==-1) t->balance=1; else t->balance=0;
-                   if (t2->balance==1) t1->balance=-1; else t1->balance=0;
-                   t=t2;
-                   update(t);
-                 }
-                 t->balance=0;
-                 h=false;
-                 break;
-      } //if (h)
-    }  // if x<t->key
-    else if (x>t->key) {
-      ++(t->size);
-      insert(x,t->right,h);
-      if (h) switch (t->balance) {
-        case -1: t->balance=0;
-                 h=false;
-                 break;
-
-        case 0: t->balance=1;
-                break;
-
-        case 1: node<T>* t1=t->right;
-                if (t1->balance==1) {
-                  t->right=t1->left;
-                  update(t);
-                  t1->left=t;
-                  t->balance=0;
-                  t=t1;
-                  update(t);
-                }
-                else {
-                  node<T>* t2=t1->left;
-                  t1->left=t2->right;
-                  update(t1);
-                  t2->right=t1;
-                  t->right=t2->left;
-                  update(t);
-                  t2->left=t;
-                  if (t2->balance==1) t->balance=-1; else t->balance=0;
-                  if (t2->balance==-1) t1->balance=1; else t1->balance=0;
-                  t=t2;
-                  update(t);
-                }
-                t->balance=0;
-                h=false;
-                break;
-      }  // if (h)
-    }  // if (x>t->key)
-    else /* x==t->key */ {
-      ++(t->counter);
-      ++(t->size);
-      h=false;
-    }
-  }
-
-  inline void balance1(node<T>* &t, bool &h) {
-    switch (t->balance) {
-      case -1: t->balance=0;
-               break;
-
-      case 0: t->balance=1; 
-              h=false;
-              break;
-
-      case 1: node<T>* t1=t->right;
-              int b1=t->balance; 
-              if (b1>=0) { 
-                t->right=t1->left; 
-                update(t); 
-                t1->left=t;
-                if (!b1) {t->balance=1; t1->balance=-1; h=false;}
-                else {t->balance=0; t1->balance=0;}
-                t=t1;
-                update(t);
-              }
-              else {
-                node<T>* t2=t1->left; 
-                int b2=t2->balance;
-                t1->left=t2->right;
-                update(t1);
-                t2->right=t1;
-                update(t2);
-                t->right=t2->left;
-                update(t);
-                t2->left=t;
-                update(t2);
-                if (b2==1) t->balance=-1; else t->balance=0;
-                if (b2==-1) t1->balance=1; else t1->balance=0;
-                t=t2;
-                t2->balance=0;
-              }
-              break;
-    }
-  }
-
-  inline void balance2(node<T>* &t, bool &h) {
-    switch (t->balance) {
-      case 1: t->balance=0;
-              break;
-
-      case 0: t->balance=-1;
-              h=false;
-              break;
-
-      case -1: node<T>* t1=t->left;
-               int b1=t1->balance;
-               if (b1<=0) {
-                 t->left=t1->right;
-                 update(t);
-                 t1->right=t;
-                 if (!b1) {t->balance=-1; t1->balance=1; h=false;}
-                 else {t->balance=0; t1->balance=0;}
-                 t=t1;
-                 update(t);
-               }
-               else {
-                 node<T>* t2=t1->right;
-                 int b2=t2->balance;
-                 t1->right=t2->left;
-                 update(t1);
-                 t2->left=t1;
-                 update(t2);
-                 t->left=t2->right;
-                 update(t);
-                 t2->right=t;
-                 update(t2);
-                 if (b2==-1) t->balance=1; else t->balance=0;
-                 if (b2==1) t1->balance=-1; else t1->balance=0;
-                 t=t2;
-                 t2->balance=0;
-               }
-               break;
-    }
-  }
-
-  void er(node<T>* &t, node<T>* &q, bool &h) {
-    if (t->right!=NULL) {
-      er(t->right,q,h); 
-      update(t);
-      if (h) balance2(t,h);
-      update(t);
-    }  
-    else {
-      q->key=t->key;
-      q->counter=t->counter;
-      update(q);
-      q=t;
-      t=t->left;
-      h=true;
-    }
-  }
-
-  void erase(T x, node<T>* &t, bool &h) { 
-    if (t==NULL) /* there is no such an element in the tree */ h=false;
-    else if (x < t->key) {erase(x,t->left,h); update(t); if (h) balance1(t,h); update(t);}
-    else if (x > t->key) {erase(x,t->right,h); update(t); if (h) balance2(t,h); update(t);}
-    else { 
-      --(t->counter);
-      update(t);
-      if (!t->counter) {
-        node<T>* q=t;
-        if (q->right==NULL) {t=q->left; h=true;}
-        else if (q->left==NULL) {t=q->right; h=true;}
-        else {er(q->left,q,h); update(t);  if (h) balance1(t,h); update(t);} 	
-        delete(q);
-      } 
-    }
-  }
-  
+      friend void swap(AvlTree<T>& s1, AvlTree<T>& s2) { swap(s1.t, s2.t); }
 };
 
 int main() {
-  SET<int> S;
-  REP(j,100) S.insert(j);
-  REP(j,100) cout << S.upperBound(j+1) << endl;
-  //REP(i,10) REP(j,100) S.erase(j);
-  S.erase(100);
-  //REP(j,100) cout << S.count(j) << endl;
-  //cout << S.count(100) << endl;
-  return 0;
+   AvlTree<int> t;
+   for (int j = 0; j < 100; ++j) t = t.insert(j);
+   for (int j = 0; j < 100; ++j) cout << t.countBigger(j) << endl;
+   for (int j = 0; j < 100; ++j) t = t.erase(j);
+   assert(t.empty());
+   return 0;
 }

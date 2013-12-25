@@ -33,13 +33,13 @@ class AvlTree {
       if (!t) return 0;
       return t->height;
    }
-   friend inline int size(const Tree& t) {
+   friend inline int siz(const Tree& t) {
       if (!t) return 0;
       return t->size;
    }
    friend inline int rootCount(const Tree& t) {
       if (!t) return 0;
-      return t->size - size(t->left) - size(t->right);
+      return t->size - siz(t->left) - siz(t->right);
    }
    friend inline bool isBalanced(const Tree& t) {
       if (!t) return true;
@@ -52,7 +52,7 @@ class AvlTree {
       //assert(!right || val < minElem(right)); // TODO comment out, this is costly
       //assert(abs(height(left) - height(right)) <= 2);
       return make_shared<Node>(val, left, right, max(height(left), height(right)) + 1,
-         size(left) + size(right) + count);
+         siz(left) + siz(right) + count);
    }
    friend Tree createAndBalance(const Tree& left, T val, int count, const Tree& right) {
       //assert(isBalanced(left));
@@ -97,7 +97,7 @@ class AvlTree {
       // inline expansion of create for better speed in the most frequent case
       // where no rebalancing is required
       return make_shared<Node>(val, left, right, max(height(left), height(right)) + 1,
-         size(left) + size(right) + count);
+         siz(left) + siz(right) + count);
    }
 
    friend Tree add(const Tree& t, T val) {
@@ -152,16 +152,16 @@ class AvlTree {
 
    friend int countSmall(const Tree& t, T val) {
       if (!t) return 0;
-      if (t->val == val) return size(t->left);
+      if (t->val == val) return siz(t->left);
       if (val < t->val) return countSmall(t->left, val);
-      return size(t->left) + rootCount(t) + countSmall(t->right, val);
+      return siz(t->left) + rootCount(t) + countSmall(t->right, val);
    }
 
    friend int countBig(const Tree& t, T val) {
       if (!t) return 0;
-      if (val == t->val) return size(t->right);
+      if (val == t->val) return siz(t->right);
       if (t->val < val) return countBig(t->right, val);
-      return size(t->right) + rootCount(t) + countBig(t->left, val);
+      return siz(t->right) + rootCount(t) + countBig(t->left, val);
    }
 
    friend Tree remove(const Tree& t, T val) {
@@ -181,7 +181,7 @@ class AvlTree {
 
    public:
       AvlTree(): t(shared_ptr<const Node>()) {}
-      int len() const { return size(t); }
+      int size() const { return siz(t); }
       bool empty() const { return t ? false : true; }
       int count(T val) const { return count(t, val); }
       int countSmaller(T val) const { return countSmall(t, val); }

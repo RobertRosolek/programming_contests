@@ -1,4 +1,4 @@
-#include <stdio.h>      
+#include <stdio.h>
 #include <ctype.h>
 #include <math.h>
 
@@ -23,7 +23,7 @@ using namespace std;
 #define REP(i,n) for (int _n=(n), i=0; i<_n; ++i)
 #define FOR(i,a,b) for (int _b=(b), i=(a); i<=_b; ++i)
 #define FORD(i,a,b) for (int _b=(b), i=(a); i>=_b; --i)
-#define FORE(i,a) for (VAR(i,a.begin ()); i!=a.end (); ++i) 
+#define FORE(i,a) for (VAR(i,a.begin ()); i!=a.end (); ++i)
 #define PB push_back
 #define MP make_pair
 #define ST first
@@ -114,4 +114,4 @@ int main() {
    cout << endl;
 
    return 0;
-}	
+}

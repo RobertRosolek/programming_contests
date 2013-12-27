@@ -1,0 +1,96 @@
+#include <iostream>
+#include <sstream>
+#include <utility>
+#include <algorithm>
+#include <cassert>
+#include <string>
+#include <vector>
+#include <queue>
+#include <set>
+#include <map>
+
+using namespace std;
+
+typedef pair<int,int> PII;
+
+vector<string> B;
+int n, res;
+
+const int dx[] = {0,-1,0,1}, dy[] = {-1,0,1,0};
+
+int cntAdj(int x, int y, char c) {
+	int res = 0;
+	for (int i = 0; i < 4; ++i) {
+		int nx = x + dx[i], ny = y + dy[i];
+		res += B[nx][ny] == c;
+	}
+	return res;
+}
+
+vector<PII> getAdj(int x, int y, char c) {
+	vector<PII> res;
+		for (int i = 0; i < 4; ++i) {
+		int nx = x + dx[i], ny = y + dy[i];
+		if (B[nx][ny] == c) res.push_back(make_pair(nx, ny));
+	}
+	return res;
+}
+
+void updateRes() {
+	cout << "START\n";
+	for (auto it = B.begin(); it != B.end(); ++it)
+		cout << *it << endl;
+	cout << "END\n\n";
+	int cnt = 0;
+	for (int i = 1; i <= n; ++i)
+		for (int j = 1; j <= n; ++j)
+			cnt += (B[i][j] == '.') || (B[i][j] == 'y') || (B[i][j] == 'o' && cntAdj(i,j,'x') == 4);
+	res = max(res, cnt);
+}
+
+void backtrack(vector<PII>& twos, int pos) {
+	if (twos.size() == pos) {
+		updateRes();
+		return;
+	}
+	int x = twos[pos].first, y = twos[pos].second;
+	if (B[x][y] != '.') {
+		backtrack(twos, pos + 1);
+		return;
+	}
+	auto whites = getAdj(x, y, 'o');
+	vector<char> to = {'y', 'x'};
+	for (auto cit = to.begin(); cit != to.end(); ++cit) {
+		vector<PII> changes;
+		for (auto it = whites.begin(); it != whites.end(); ++it) {
+			int wx = it->first, wy = it->second;
+			for (int i = 0; i < 4; ++i) {
+				int nx = wx + dx[i], ny = wy + dy[i];
+				if (B[nx][ny] != '.') continue;
+				B[nx][ny] = *cit;
+				changes.push_back(make_pair(nx, ny));
+			}
+		}
+		backtrack(twos, pos + 1);
+		for (auto it = changes.begin(); it != changes.end(); ++it) B[it->first][it->second] = '.';
+	}
+}
+
+class FoxAndGo3 {
+public:
+	int maxEmptyCells(vector <string> board) {
+		n = board.size();
+   		string brd = "";
+   		for (int i = 0; i < n + 2; ++i) brd += 'x';
+   		B.push_back(brd);
+   		for (auto it = board.begin(); it != board.end(); ++it) B.push_back("x" + *it + "x");
+   		B.push_back(brd);
+   		vector<PII> twos;
+   		for (int i = 1; i <= n; ++i)
+   			for (int j = 1; j <= n; ++j)
+   				if (B[i][j] == '.' && cntAdj(i, j, 'o') >= 2) twos.push_back(make_pair(i, j));
+   		res = 0;
+   		backtrack(twos, 0);
+		return res;
+   	}
+};

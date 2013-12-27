@@ -1,125 +1,76 @@
-#include <stdio.h>      
-#include <ctype.h>
-#include <math.h>
-
 #include <iomanip>
 #include <iostream>
-#include <sstream>
 #include <utility>
 #include <algorithm>
 #include <cassert>
 #include <string>
 #include <vector>
-#include <queue>
 #include <set>
 #include <map>
+
 using namespace std;
 
-typedef vector<int> VI;
-typedef long long LL;
-typedef pair<int,int> PII;
-typedef double LD;
-
-/* CHECKLIST 
- * 1) long longs */
+/* CHECKLIST
+ * 1) long longs
+ * 2) lower_bound etc - out of bound
+ * */
 
 const int DBG = 0, INF = int(1e9);
 
-const int M = 1e6;
+const int MAXN = int(1e6);
 
-int P[M + 1];
-
-void sieve() {
-   for (int i = 0; i <= M; ++i)
-      P[i] = i;
-   for (int i = 2; i <= M; ++i)
-      if (P[i] == i) 
-         for (LL x = LL(i) * i; x <= M; x += i)
-            if (P[x] == x)
-               P[x] = i;
+bool walk(const vector<pair<int, int>>& forbidden, int step, vector<bool>& erased, int eraseLimit) {
+   if (step == forbidden.size()) return true;
+   int a = forbidden[step].first, b = forbidden[step].second;
+   if (erased[a] || erased[b]) return walk(forbidden, step + 1, erased, eraseLimit);
+   if (eraseLimit == 0) return false;
+   erased[a] = true;
+   bool ok = walk(forbidden, step + 1, erased, eraseLimit - 1);
+   erased[a] = false;
+   if (ok) return true;
+   erased[b] = true;
+   ok = walk(forbidden, step + 1, erased, eraseLimit - 1);
+   erased[b] = false;
+   if (ok) return true;
+   if (eraseLimit == 1) return false;
+   erased[a] = erased[b] = true;
+   ok = walk(forbidden, step + 1, erased, eraseLimit - 2);
+   erased[a] = erased[b] = false;
+   return ok;
 }
 
-void generate(const vector<PII> &primes, int step, int n, int cur, VI &dividers) {
-   if (step == n)
-      dividers.push_back(cur);
-   else {
-      int mlt = 1;
-      for (int i = 0; i <= primes[step].second; ++i) {
-         generate(primes, step + 1, n, cur * mlt, dividers);
-         mlt *= primes[step].first;
-      }   
-   }
-}
 
-void get_dividers(int k, VI &dividers) {
-   VI primes;
-   //cout << k << " ";
-   while (k > 1) {
-      primes.push_back(P[k]);
-      k /= P[k];
-   }
-   primes.push_back(M + 2);
-   vector<PII> primes_2;
-   int prim = -1, cnt = 0;
-   for (int i = 0, _n = primes.size(); i < _n; ++i) 
-      if (primes[i] == prim)
-         ++cnt;
-      else {
-         if (prim != -1)
-            primes_2.push_back(make_pair(prim,cnt));
-         prim = primes[i];
-         cnt = 1;
-      }
-   /*for (int i = 0; i < primes_2.size(); ++i)
-      cout << primes_2[i].first << " " << primes_2[i].second << " ";
-   cout << endl;*/
-   generate(primes_2, 0, primes_2.size(), 1, dividers);
-}
-
-bool check(int m, int n, int k, map<int, vector<PII> > &mp) {
-   vector<VI> v(n);
-   for (int i = 0, _n = mp[m].size(); i < _n; ++i) {
-      v[mp[m][i].first].push_back(mp[m][i].second);
-      v[mp[m][i].second].push_back(mp[m][i].first);
-   }
-}
 
 int main() {
    ios_base::sync_with_stdio(0);
    cout.setf(ios::fixed);
-
-   sieve();
-
-   int n,k;
-   cin >> n >> k;
-
-   VI a(n);
-   for (int i = 0; i < n; ++i)
-      cin >> a[i];
-
+   int n, k; cin >> n >> k;
+   vector<int> a(n);
+   for (auto& x: a) cin >> x;
+   int mx = *max_element(a.begin(), a.end());
    sort(a.begin(), a.end());
-
-   map<int, vector<PII> > mp;
-
-   for (int i = 0; i < n; ++i)
-      for (int j = 0; j < i; ++j) {
-         int dif = a[i] - a[j];
-         VI dividers;
-         get_dividers(dif, dividers);
-         /*cout << dif << " ";
-         for (int i = 0; i < dividers.size(); ++i)
-            cout << dividers[i] << " ";
-         cout << endl;*/
-         for (int i = 0, _n = dividers.size(); i < _n; ++i)
-            if (dividers[i] >= n - k - 10)
-               mp[dividers[i]].push_back(make_pair(i,j));
-      }
-
-   for (int m = max(0, n - k - 10); ; ++m)
-      if (check(m, n, k, mp)) {
+   reverse(a.begin(), a.end());
+   vector<int> cnt(mx + 1, 0);
+   for (auto i = 0; i < n; ++i) for (auto j = 0; j < i; ++j) ++cnt[a[j] - a[i]];
+   vector<vector<pair<int,int>>> v(mx + 1);
+   for (auto i = 0; i < mx + 1; ++i) if (cnt[i] <= 10) v[i].reserve(cnt[i]);
+   for (auto i = 0; i < n; ++i) for (auto j = 0; j < i; ++j) {
+      int x = a[j] - a[i];
+      if (cnt[x] <= 10) v[x].push_back(make_pair(i, j));
+   }
+   for (int m = 1; m <= mx + 1; ++m) {
+      vector<pair<int, int>> forbidden;
+      forbidden.reserve(10);
+      bool ok = true;
+      for (int x = m; ok && x <= mx; x += m) if (v[x].size() > 4 || cnt[x] > 10) ok = false; else copy(v[x].begin(), v[x].end(), back_inserter(forbidden));
+      if (!ok) continue;
+      vector<bool> erased(n, false);
+      if (walk(forbidden, 0, erased, k)) {
          cout << m << endl;
          return 0;
       }
-
+   }
+   assert(false);
    return 0;
-}	
+}
+

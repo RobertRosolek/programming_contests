@@ -15,6 +15,7 @@
 using namespace std ;
 
 #include <memory>
+#define WARN_UNUSED __attribute__((warn_unused_result))
 template<class T>
 class AvlTree {
    struct Node {

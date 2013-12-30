@@ -22,7 +22,7 @@ int main() {
    cout.setf(ios::fixed);
    int k, X, n, m; cin >> k >> X >> n >> m;
    auto check = [] (int n, int ac, char first, char last) {
-      if (n == 1 && first != last) return false;
+      if (n == 1) return first == last;
       if (n % 2 == 0 && ac == n / 2) return first == 'A' && last == 'C';
       if (n % 2 == 1 && ac == n / 2) return first == 'A' || last == 'C';
       return true;
@@ -67,6 +67,7 @@ int main() {
                sec_let0 = first_let0;
                sec_letn = sec_letn;
                first_ac = tmp_ac, first_let0 = tmp_let0, first_letn = tmp_letn;
+               if (sec_ac > X) return false;
             }
             return sec_ac == X;
          };

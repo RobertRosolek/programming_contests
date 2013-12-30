@@ -20,6 +20,6 @@ const int DBG = 0, INF = int(1e9);
 int main() {
    ios_base::sync_with_stdio(0);
    cout.setf(ios::fixed);
-
+   cout << "check checklist!!!\n";
    return 0;
 }

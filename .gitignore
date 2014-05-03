@@ -1,6 +1,7 @@
 *.exe
 *.in
 *.out
+*.out2
 *.zip
 *.tar.gz
 *.tar.bz2
